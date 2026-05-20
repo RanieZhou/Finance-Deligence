@@ -9,6 +9,23 @@ import re
 from loguru import logger
 from schemas.models import DocumentResult, EvidenceItem, FinancialItem
 
+# 财务字段名归一化（post-processing 层补充，覆盖 LLM 输出中的异名）
+_FINANCIAL_FIELD_NORMALIZE: dict[str, str] = {
+    '扣非净利润':          '扣非归母净利润',
+    '扣非归母净利润':      '扣非归母净利润',
+    '归属于母公司所有者的净利润': '归母净利润',
+    '归属于母公司股东的净利润':   '归母净利润',
+    '归母净利润':          '归母净利润',
+    '资产总额':            '总资产',
+    '资产总计':            '总资产',
+    '负债总额':            '总负债',
+    '负债总计':            '总负债',
+    '负债合计':            '总负债',
+    '经营活动产生的现金流量净额': '经营活动现金流净额',
+    '经营活动现金流量净额': '经营活动现金流净额',
+    '营业总收入':          '营业收入',
+}
+
 
 # ── 日期归一化 ────────────────────────────────────────────
 _DATE_PATTERNS = [
@@ -35,15 +52,31 @@ def normalize_document(doc: DocumentResult) -> DocumentResult:
             doc.issuer_profile.establishment_date
         )
 
-    # 财务指标 period
+    # 财务指标 period + field_name 归一化
     for item in doc.financials:
         if item.period:
             item.period = normalize_date(item.period)
+        item.field_name = _FINANCIAL_FIELD_NORMALIZE.get(item.field_name, item.field_name)
+
+    # 财务核心指标去重（归一化后同一 key 只保留第一条）
+    seen: set[tuple] = set()
+    deduped: list[FinancialItem] = []
+    for item in doc.financials:
+        key = (item.field_name, item.field_scope, item.period)
+        if key not in seen:
+            seen.add(key)
+            deduped.append(item)
+    doc.financials = deduped
 
     # 合规事项日期
     for item in doc.compliance_items:
         if item.occurrence_date:
             item.occurrence_date = normalize_date(item.occurrence_date)
+
+    # 募投项目：建设期为"/"时清空（表示不适用）
+    for proj in doc.fund_raising_projects:
+        if proj.construction_period in ('/', '—', '-', ''):
+            proj.construction_period = ""
 
     return doc
 
@@ -71,7 +104,7 @@ def validate_document(doc: DocumentResult) -> list[str]:
                 f"募投项目 [{proj.project_name}]: 拟用募资({pf}) > 总投资({ti})"
             )
 
-    # 3. 同一期间同一口径下关键财务指标重复
+    # 3. 同一期间同一口径下关键财务指标重复（只检查核心指标）
     seen_financial: set[tuple] = set()
     for item in doc.financials:
         key = (item.field_name, item.field_scope, item.period)
@@ -142,3 +175,47 @@ def build_evidence_index(doc: DocumentResult) -> list[EvidenceItem]:
 def _parse_page(evidence_id: str) -> int:
     m = re.search(r"\d+", evidence_id)
     return int(m.group()) if m else 0
+
+
+def remap_evidence_ids(doc: DocumentResult) -> DocumentResult:
+    """
+    将各字段的 source_evidence_id（"p{N}"）替换为 evidence_index 中的 ev_xxxx。
+    必须在 build_evidence_index() 之后调用。
+    """
+    if not doc.evidence_index:
+        return doc
+
+    # 建立 page_no → ev_id 反向映射
+    page_to_ev: dict[int, str] = {}
+    for ev in doc.evidence_index:
+        if ev.page_no not in page_to_ev:
+            page_to_ev[ev.page_no] = ev.evidence_id
+
+    def remap(raw_id: str) -> str:
+        if not raw_id:
+            return raw_id
+        page = _parse_page(raw_id)
+        return page_to_ev.get(page, raw_id)
+
+    doc.issuer_profile.source_evidence_id = remap(doc.issuer_profile.source_evidence_id)
+
+    for sh in doc.ownership_structure.controlling_shareholder:
+        sh.source_evidence_id = remap(sh.source_evidence_id)
+    for ac in doc.ownership_structure.actual_controller:
+        ac.source_evidence_id = remap(ac.source_evidence_id)
+    for sh in doc.ownership_structure.top_shareholders:
+        sh.source_evidence_id = remap(sh.source_evidence_id)
+
+    for fi in doc.financials:
+        fi.source_evidence_id = remap(fi.source_evidence_id)
+
+    for fp in doc.fund_raising_projects:
+        fp.source_evidence_id = remap(fp.source_evidence_id)
+
+    for ri in doc.risk_items:
+        ri.source_evidence_id = remap(ri.source_evidence_id)
+
+    for ci in doc.compliance_items:
+        ci.source_evidence_id = remap(ci.source_evidence_id)
+
+    return doc

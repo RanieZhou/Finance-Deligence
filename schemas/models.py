@@ -1,6 +1,5 @@
 """
-金融赛题 - 完整 Pydantic Schema 定义
-基于赛题补充说明 2.3.2 数据结构
+金融赛题 - Pydantic Schema 定义
 """
 from __future__ import annotations
 from typing import Optional, Literal
@@ -104,8 +103,8 @@ class RiskItem(BaseModel):
 class ComplianceItem(BaseModel):
     item_type: str = Field(description="行政处罚/诉讼仲裁/关联交易/对外担保")
     counterparty: str = ""
-    occurrence_date: str = Field(default="", description="YYYY-MM-DD")
-    period: str = Field(default="", description="适用于关联交易，如 2022-12-31")
+    occurrence_date: str = Field(default="", description="YYYY-MM-DD，适用于处罚/诉讼")
+    period: str = Field(default="", description="报告期，适用于关联交易，如 2022-12-31")
     amount: Money = Field(default_factory=Money)
     description: str = ""
     source_evidence_id: str = ""

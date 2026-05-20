@@ -79,42 +79,52 @@ def extract_fund_raising(chunks: list[SectionChunk]) -> list[FundRaisingProject]
 def extract_risks(chunks: list[SectionChunk]) -> list[RiskItem]:
     if not chunks:
         return []
-    text = _merge_chunks(chunks)
-    raw = extract_json(SYSTEM_PROMPTS["risk_items"], text)
     results = []
-    for item in raw.get("risk_items", []):
-        try:
-            results.append(RiskItem(
-                risk_title=item.get("risk_title", ""),
-                risk_category=item.get("risk_category", ""),
-                risk_description=item.get("risk_description", ""),
-                severity_level=item.get("severity_level", ""),
-                source_evidence_id=item.get("source_evidence_id", ""),
-            ))
-        except Exception as e:
-            logger.warning(f"RiskItem parse error: {e}")
+    seen_titles: set[str] = set()
+    for chunk in chunks:
+        raw = extract_json(SYSTEM_PROMPTS["risk_items"], chunk.text)
+        for item in raw.get("risk_items", []):
+            try:
+                title = item.get("risk_title", "").strip()
+                if title in seen_titles:
+                    continue
+                seen_titles.add(title)
+                results.append(RiskItem(
+                    risk_title=title,
+                    risk_category=item.get("risk_category", ""),
+                    risk_description=item.get("risk_description", ""),
+                    severity_level=item.get("severity_level", ""),
+                    source_evidence_id=item.get("source_evidence_id", ""),
+                ))
+            except Exception as e:
+                logger.warning(f"RiskItem parse error: {e}")
     return results
 
 
 def extract_compliance(chunks: list[SectionChunk]) -> list[ComplianceItem]:
     if not chunks:
         return []
-    text = _merge_chunks(chunks)
-    raw = extract_json(SYSTEM_PROMPTS["compliance_items"], text)
     results = []
-    for item in raw.get("compliance_items", []):
-        try:
-            results.append(ComplianceItem(
-                item_type=item.get("item_type", ""),
-                counterparty=item.get("counterparty", ""),
-                occurrence_date=item.get("occurrence_date", ""),
-                period=item.get("period", ""),
-                amount=_parse_money(item.get("amount", {})),
-                description=item.get("description", ""),
-                source_evidence_id=item.get("source_evidence_id", ""),
-            ))
-        except Exception as e:
-            logger.warning(f"ComplianceItem parse error: {e}")
+    seen_keys: set[tuple] = set()
+    for chunk in chunks:
+        raw = extract_json(SYSTEM_PROMPTS["compliance_items"], chunk.text)
+        for item in raw.get("compliance_items", []):
+            try:
+                key = (item.get("item_type", ""), item.get("description", "")[:30])
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                results.append(ComplianceItem(
+                    item_type=item.get("item_type", ""),
+                    counterparty=item.get("counterparty", ""),
+                    occurrence_date=item.get("occurrence_date", ""),
+                    period=item.get("period", ""),
+                    amount=_parse_money(item.get("amount", {})),
+                    description=item.get("description", ""),
+                    source_evidence_id=item.get("source_evidence_id", ""),
+                ))
+            except Exception as e:
+                logger.warning(f"ComplianceItem parse error: {e}")
     return results
 
 
