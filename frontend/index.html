@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业授信尽调信息抽取 - MinerU Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f6fa; color: #2d3436; }
+    header { background: #0984e3; color: #fff; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+    header h1 { font-size: 20px; font-weight: 600; }
+    header small { font-size: 12px; opacity: 0.8; margin-top: 2px; display: block; }
+    .container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+
+    /* Upload panel */
+    .upload-card { background: #fff; border-radius: 8px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .upload-card h2 { font-size: 15px; margin-bottom: 16px; color: #636e72; }
+    .upload-zone { border: 2px dashed #b2bec3; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: border-color .2s; }
+    .upload-zone:hover, .upload-zone.drag { border-color: #0984e3; }
+    .upload-zone p { color: #636e72; font-size: 14px; margin-top: 8px; }
+    .upload-zone svg { color: #0984e3; }
+    #file-input { display: none; }
+    .btn { display: inline-block; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .btn-primary { background: #0984e3; color: #fff; }
+    .btn-primary:hover { background: #0773c5; }
+    .btn-primary:disabled { background: #b2bec3; cursor: not-allowed; }
+    .status { margin-top: 12px; font-size: 13px; color: #636e72; }
+    .status.error { color: #d63031; }
+    .status.success { color: #00b894; }
+
+    /* Results */
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+    @media (max-width: 700px) { .result-grid { grid-template-columns: 1fr; } }
+    .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .card h3 { font-size: 14px; font-weight: 600; color: #0984e3; margin-bottom: 12px; border-bottom: 1px solid #f0f0f0; padding-bottom: 8px; }
+    .field { display: flex; margin-bottom: 6px; font-size: 13px; }
+    .field .label { color: #636e72; min-width: 90px; flex-shrink: 0; }
+    .field .value { color: #2d3436; word-break: break-all; }
+    table.data { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+    table.data th { background: #f5f6fa; color: #636e72; padding: 6px 8px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+    table.data td { padding: 5px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+    table.data tr:last-child td { border: none; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; }
+    .badge-high { background: #ffeaa7; color: #d35400; }
+    .badge-mid { background: #dfe6e9; color: #636e72; }
+    .badge-low { background: #d5e8d4; color: #27ae60; }
+    .full-json { margin-top: 24px; }
+    .full-json summary { cursor: pointer; font-size: 13px; color: #636e72; padding: 8px 0; }
+    .full-json pre { background: #2d3436; color: #dfe6e9; padding: 16px; border-radius: 6px; font-size: 11px; overflow: auto; max-height: 400px; margin-top: 8px; }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #b2bec3; border-top-color: #0984e3; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 6px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>企业授信尽调信息抽取 Demo</h1>
+    <small>基于 MinerU + DeepSeek · 2026 MinerU 数据智能挑战赛</small>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Upload panel -->
+  <div class="upload-card">
+    <h2>上传招股说明书 / 可转债募集说明书 PDF</h2>
+    <div class="upload-zone" id="drop-zone">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+      </svg>
+      <p>拖拽 PDF 文件至此，或 <a href="#" onclick="document.getElementById('file-input').click();return false">点击选择</a></p>
+      <p style="font-size:11px;margin-top:6px">支持招股说明书、可转债募集说明书、上市公告书</p>
+    </div>
+    <input type="file" id="file-input" accept=".pdf">
+    <div style="margin-top:16px;display:flex;align-items:center;gap:12px">
+      <button class="btn btn-primary" id="submit-btn" disabled onclick="submitFile()">开始抽取</button>
+      <span class="status" id="status-msg"></span>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results" style="display:none">
+    <div class="result-grid">
+      <!-- 发行人信息 -->
+      <div class="card" id="card-issuer">
+        <h3>发行人基本信息</h3>
+        <div id="issuer-content"></div>
+      </div>
+
+      <!-- 股权结构 -->
+      <div class="card" id="card-ownership">
+        <h3>股权与控制关系</h3>
+        <div id="ownership-content"></div>
+      </div>
+
+      <!-- 财务指标 -->
+      <div class="card" style="grid-column:1/-1" id="card-financials">
+        <h3>关键财务指标</h3>
+        <div id="financials-content"></div>
+      </div>
+
+      <!-- 募投项目 -->
+      <div class="card" id="card-fund">
+        <h3>募投项目</h3>
+        <div id="fund-content"></div>
+      </div>
+
+      <!-- 风险事项 -->
+      <div class="card" id="card-risk">
+        <h3>重大风险事项</h3>
+        <div id="risk-content"></div>
+      </div>
+    </div>
+
+    <!-- 完整 JSON -->
+    <details class="full-json">
+      <summary>查看完整 JSON 输出</summary>
+      <pre id="full-json-pre"></pre>
+    </details>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://127.0.0.1:8000';
+let selectedFile = null;
+
+// Drag-and-drop
+const zone = document.getElementById('drop-zone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.pdf')) setFile(f);
+});
+
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) setFile(e.target.files[0]);
+});
+
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('status-msg').textContent = `已选择: ${f.name} (${(f.size/1024/1024).toFixed(1)} MB)`;
+  document.getElementById('status-msg').className = 'status';
+  document.getElementById('submit-btn').disabled = false;
+}
+
+async function submitFile() {
+  if (!selectedFile) return;
+  const btn = document.getElementById('submit-btn');
+  const status = document.getElementById('status-msg');
+  btn.disabled = true;
+  status.innerHTML = '<span class="spinner"></span>正在解析 PDF（首次约 2-10 分钟）...';
+  status.className = 'status';
+  document.getElementById('results').style.display = 'none';
+
+  const form = new FormData();
+  form.append('file', selectedFile);
+  form.append('parse_mode', 'txt');
+
+  try {
+    const resp = await fetch(`${API_BASE}/extract`, { method: 'POST', body: form });
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.detail || '服务器错误');
+    }
+    const data = await resp.json();
+    renderResults(data);
+    status.textContent = '✓ 抽取完成';
+    status.className = 'status success';
+  } catch (e) {
+    status.textContent = `错误: ${e.message}`;
+    status.className = 'status error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderResults(doc) {
+  document.getElementById('results').style.display = 'block';
+
+  // 发行人
+  const ip = doc.issuer_profile || {};
+  document.getElementById('issuer-content').innerHTML = `
+    ${field('公司全称', ip.issuer_name)}
+    ${field('简称', ip.issuer_name_normalized)}
+    ${field('证券代码', ip.stock_code)}
+    ${field('交易所', ip.exchange + ' · ' + ip.board)}
+    ${field('法定代表人', ip.legal_representative)}
+    ${field('成立日期', ip.establishment_date)}
+    ${field('注册资本', ip.registered_capital ? (ip.registered_capital.value || '') + ip.registered_capital.unit : '')}
+    ${field('主营业务', ip.main_business)}
+    ${field('来源页码', ip.source_evidence_id)}
+  `;
+
+  // 股权
+  const ow = doc.ownership_structure || {};
+  const sh = (ow.controlling_shareholder || []).map(s =>
+    `<tr><td>${s.name}</td><td>${s.direct_or_indirect}</td><td>${s.shareholding_ratio ? (s.shareholding_ratio*100).toFixed(2)+'%' : '-'}</td><td>${s.source_evidence_id}</td></tr>`
+  ).join('');
+  const topSh = (ow.top_shareholders || []).slice(0,5).map(s =>
+    `<tr><td>${s.name}</td><td>${s.shareholding_ratio ? (s.shareholding_ratio*100).toFixed(2)+'%' : '-'}</td></tr>`
+  ).join('');
+  document.getElementById('ownership-content').innerHTML = `
+    ${field('实际控制人', (ow.actual_controller||[]).map(a=>a.name).join('、'))}
+    ${field('一致行动', ow.concerted_action_flag ? '是' : '否')}
+    ${sh ? `<div style="margin-top:8px;font-size:12px;color:#636e72">控股股东</div>
+    <table class="data"><tr><th>姓名/机构</th><th>直接/间接</th><th>持股比例</th><th>页码</th></tr>${sh}</table>` : ''}
+    ${topSh ? `<div style="margin-top:8px;font-size:12px;color:#636e72">前五大股东</div>
+    <table class="data"><tr><th>股东</th><th>持股比例</th></tr>${topSh}</table>` : ''}
+  `;
+
+  // 财务
+  const fins = doc.financials || [];
+  const finRows = fins.slice(0, 20).map(f =>
+    `<tr><td>${f.field_name}</td><td>${f.field_scope}</td><td>${f.period}</td><td>${f.value !== null ? f.value.toLocaleString() + f.unit : '-'}</td><td>${f.source_evidence_id}</td></tr>`
+  ).join('');
+  document.getElementById('financials-content').innerHTML = finRows
+    ? `<table class="data"><tr><th>指标</th><th>口径</th><th>报告期</th><th>金额</th><th>页码</th></tr>${finRows}</table>`
+    : '<p style="color:#636e72;font-size:13px">未找到财务数据</p>';
+
+  // 募投
+  const fps = doc.fund_raising_projects || [];
+  document.getElementById('fund-content').innerHTML = fps.length
+    ? fps.map(p => `
+      <div style="margin-bottom:12px;padding:10px;background:#f8f9fa;border-radius:6px">
+        <div style="font-weight:500;font-size:13px">${p.project_name}</div>
+        ${field2('类型', p.project_type)}
+        ${field2('总投资', p.total_investment ? (p.total_investment.value||'') + p.total_investment.unit : '')}
+        ${field2('拟用募资', p.planned_use_of_raised_funds ? (p.planned_use_of_raised_funds.value||'') + p.planned_use_of_raised_funds.unit : '')}
+        ${field2('实施主体', p.implementation_entity)}
+      </div>`).join('')
+    : '<p style="color:#636e72;font-size:13px">未找到募投项目</p>';
+
+  // 风险
+  const risks = doc.risk_items || [];
+  document.getElementById('risk-content').innerHTML = risks.slice(0, 8).map(r => `
+    <div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="badge ${r.severity_level==='高'?'badge-high':r.severity_level==='低'?'badge-low':'badge-mid'}">${r.severity_level||'中'}</span>
+        <span style="font-size:13px;font-weight:500">${r.risk_title}</span>
+      </div>
+      <p style="font-size:12px;color:#636e72;margin-top:4px">${r.risk_description}</p>
+    </div>`).join('') || '<p style="color:#636e72;font-size:13px">未找到风险事项</p>';
+
+  // Full JSON
+  document.getElementById('full-json-pre').textContent = JSON.stringify(doc, null, 2);
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function field(label, value) {
+  if (!value) return '';
+  return `<div class="field"><span class="label">${label}</span><span class="value">${value}</span></div>`;
+}
+function field2(label, value) {
+  if (!value) return '';
+  return `<div style="font-size:12px;color:#636e72;margin-top:2px">${label}: <span style="color:#2d3436">${value}</span></div>`;
+}
+</script>
+</body>
+</html>

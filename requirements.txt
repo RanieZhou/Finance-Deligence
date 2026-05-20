@@ -1,0 +1,12 @@
+# 用 uv pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple 安装
+mineru[all]
+pydantic>=2.0
+openai
+python-dotenv
+fastapi
+uvicorn
+httpx
+tqdm
+loguru
+pandas
+openpyxl

@@ -1,0 +1,393 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "南华期货股份有限公司关于刊发 H 股招股说明书、H 股发行价格区间及 H股香港公开发售等事宜的公告"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                149,
+                151,
+                847,
+                231
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "本公司董事会及全体董事保证本公告内容不存在任何虚假记载、误导性陈述或者重大遗漏，并对其内容的真实性、准确性和完整性承担法律责任。"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                243,
+                852,
+                292
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "南华期货股份有限公司（以下简称“公司”）正在进行申请发行境外上市股份（H 股）并在香港联合交易所有限公司（以下简称“香港联交所”）主板挂牌上市（以下简称“本次发行上市”）的相关工作。"
+                    }
+                ]
+            },
+            "bbox": [
+                146,
+                331,
+                852,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2025 年4月17 日，公司向香港联交所递交了本次发行上市的申请，并于同日在香港联交所网站刊登了申请资料。2025 年 10 月 31 日，按照本次发行上市的时间安排并根据香港联交所的相关规定，公司更新递交了本次发行上市的申请，并于同日在香港联交所网站刊登了更新申请资料。"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                414,
+                858,
+                519
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2025 年 9 月 19 日，中国证券监督管理委员会（以下简称“中国证监会”）出具《关于南华期货股份有限公司境外发行上市备案通知书》（国合函〔20251618 号），中国证监会对公司本次发行上市备案信息予以确认。2025 年11月20日，香港联交所上市委员会举行上市聆讯，审议了公司本次发行上市的申请。关于本次发行上市的相关进展具体内容详见公司在上海证券交易所网站(www.sse.com.cn)披露的公告。"
+                    }
+                ]
+            },
+            "bbox": [
+                146,
+                526,
+                852,
+                686
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2025 年 12 月 12 日，公司按照有关规定在香港联交所网站刊登并派发本次发行上市 H 股招股说明书，该 H 股招股说明书为根据适用的香港法律法规和香港联交所、香港证券及期货事务监察委员会的相关规范及要求而刊发，其包含的部分内容可能与公司先前根据中国法律法规准备或者刊发的相关文件存在一定的差异，包括但不限于该招股说明书中包含的根据国际会计准则编制的会计师报告，刊发目的仅为提供资讯予香港公众人士和合资格的投资者，境内投资者应当参阅公司在境内的报纸及监管机构指定的信息披露网站的相关信息和公告。"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                693,
+                855,
+                881
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "鉴于本次发行上市 H 股招股说明书的刊发目的仅为提供信息予香港公众人士和合资格的投资者，公司将不会在境内证券交易所的网站和符合监管机构规定条件的媒体上刊登该 H 股招股说明书，但为使境内投资者及时了解该 H股招股说明书披露的本次发行上市及公司的其他相关信息，现提供该H股招股说明书在香港联交所网站的查询链接："
+                    }
+                ]
+            },
+            "bbox": [
+                184,
+                887,
+                852,
+                907
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "证券代码：603093"
+                    }
+                ]
+            },
+            "bbox": [
+                147,
+                85,
+                314,
+                103
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "证券简称：南华期货"
+                    }
+                ]
+            },
+            "bbox": [
+                400,
+                85,
+                586,
+                104
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "公告编号：2025-072"
+                    }
+                ]
+            },
+            "bbox": [
+                662,
+                85,
+                848,
+                103
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                144,
+                85,
+                852,
+                187
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "中文："
+                    }
+                ]
+            },
+            "bbox": [
+                186,
+                196,
+                242,
+                215
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/1212/20251 21200022_c.pdf"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                223,
+                843,
+                271
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "英文："
+                    }
+                ]
+            },
+            "bbox": [
+                184,
+                279,
+                242,
+                298
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/1212/20251 21200021.pdf"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                307,
+                845,
+                354
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "需要特别予以说明的是，本公告仅为境内投资者及时了解公司的相关信息而作出。本公告以及公司刊登于香港联交所网站的H股招股说明书均不构成也不得视作对任何个人或实体收购、购买或认购公司任何证券的要约或要约邀请。"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                362,
+                852,
+                438
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "公司本次全球发售H股基础发行股数为107,659,000 股（视乎超额配售权行使与否而定），其中，初步安排香港公开发售 10,766,000 股（可予重新分配），约占全球发售总数的 10%；国际发售 96,893,000 股（可予重新分配及视乎超额配售权行使与否而定），约占全球发售总数的90%。"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                445,
+                852,
+                549
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "自上市日至香港公开发售截止日后起 30 日内，整体协调人（为其自身及代表国际承销商）还可以通过行使超额配售权，要求公司按发售价配发及发行最多不超过 16,148,500 股 H股。在发售量调整权及超额配售权悉数行使的情况下，公司本次全球发售H股的最大发行股数为123,807,500 股。"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                557,
+                852,
+                661
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "公司本次H股发行的价格区间初步确定为12.00 港元至16.00港元。公司H股香港公开发售于2025 年12月12 日开始，预计于2025 年12月17日结束，并预计于 2025 年 12 月 18 日公布发行价格，相关情况将刊登于香港联交所网站（www.hkexnews.hk）和公司网站（https://www.nanhua.net/）。"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                668,
+                853,
+                771
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "公司本次发行的 H 股预计于 2025 年12 月 22 日在香港联交所挂牌并开始上市交易。"
+                    }
+                ]
+            },
+            "bbox": [
+                144,
+                778,
+                852,
+                826
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "特此公告。"
+                    }
+                ]
+            },
+            "bbox": [
+                184,
+                834,
+                284,
+                852
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "南华期货股份有限公司董事会"
+                    }
+                ]
+            },
+            "bbox": [
+                571,
+                866,
+                840,
+                885
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2025 年 12 月 13 日"
+                    }
+                ]
+            },
+            "bbox": [
+                625,
+                895,
+                798,
+                913
+            ]
+        }
+    ]
+]
