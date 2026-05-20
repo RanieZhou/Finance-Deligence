@@ -145,20 +145,27 @@ def _to_float(v) -> float | None:
         return None
 
 
+def _str_field(v) -> str:
+    """LLM 有时把字段包成 {"value": "...", "source_evidence_id": "..."} 对象，做兜底解包。"""
+    if isinstance(v, dict):
+        return str(v.get("value") or "")
+    return str(v) if v is not None else ""
+
+
 def _parse_issuer(raw: dict) -> IssuerProfile:
     return IssuerProfile(
-        issuer_name=raw.get("issuer_name", ""),
-        issuer_name_normalized=raw.get("issuer_name_normalized", ""),
-        stock_code=raw.get("stock_code", ""),
-        exchange=raw.get("exchange", ""),
-        board=raw.get("board", ""),
-        legal_representative=raw.get("legal_representative", ""),
-        establishment_date=raw.get("establishment_date", ""),
+        issuer_name=_str_field(raw.get("issuer_name", "")),
+        issuer_name_normalized=_str_field(raw.get("issuer_name_normalized", "")),
+        stock_code=_str_field(raw.get("stock_code", "")),
+        exchange=_str_field(raw.get("exchange", "")),
+        board=_str_field(raw.get("board", "")),
+        legal_representative=_str_field(raw.get("legal_representative", "")),
+        establishment_date=_str_field(raw.get("establishment_date", "")),
         registered_capital=_parse_money(raw.get("registered_capital", {})),
-        registered_address=raw.get("registered_address", ""),
-        industry=raw.get("industry", ""),
-        main_business=raw.get("main_business", ""),
-        source_evidence_id=raw.get("source_evidence_id", ""),
+        registered_address=_str_field(raw.get("registered_address", "")),
+        industry=_str_field(raw.get("industry", "")),
+        main_business=_str_field(raw.get("main_business", "")),
+        source_evidence_id=_str_field(raw.get("source_evidence_id", "")),
     )
 
 

@@ -18,16 +18,22 @@ TARGET_COMPLIANCE  = "compliance_items"
 
 # 章节标题关键词 → 抽取目标映射
 _CHAPTER_RULES: list[tuple[re.Pattern, str]] = [
-    (re.compile(r"发行人基本情况|公司基本情况|发行人概况|发行人简介"), TARGET_ISSUER),
-    (re.compile(r"股权结构|控制关系|实际控制人|股东"), TARGET_OWNERSHIP),
-    (re.compile(r"财务会计|财务报表|财务信息|管理层分析|财务状况"), TARGET_FINANCIALS),
-    (re.compile(r"募集资金|募投项目|资金运用|募资用途"), TARGET_FUND),
-    (re.compile(r"风险因素|重大风险|风险提示"), TARGET_RISK),
-    (re.compile(r"处罚|诉讼|仲裁|关联交易|对外担保"), TARGET_COMPLIANCE),
+    # 发行人基础信息
+    (re.compile(r"发行人基本情况|公司基本情况|发行人概况|发行人简介|发行人及本次发行|公司简介|主体基本情况|基本信息"), TARGET_ISSUER),
+    # 股权与控制关系
+    (re.compile(r"股权结构|控制关系|实际控制人|控股股东|持有.*5%以上|持有.*股份的股东|股东及实际控制人|股权关系|控股关系|主要股东"), TARGET_OWNERSHIP),
+    # 财务指标
+    (re.compile(r"财务会计|财务报表|财务信息|管理层分析|财务状况|主要财务数据|主要财务指标|经营成果|财务数据摘要|财务摘要|财务概要"), TARGET_FINANCIALS),
+    # 募投项目
+    (re.compile(r"募集资金|募投项目|资金运用|募资用途|募集资金运用计划|募集资金用途|本次募集|资金使用计划"), TARGET_FUND),
+    # 风险事项
+    (re.compile(r"风险因素|重大风险|风险提示|重大事项提示"), TARGET_RISK),
+    # 合规事项
+    (re.compile(r"处罚|诉讼|仲裁|关联交易|对外担保|承诺事项|或有事项|其他重要事项|法律事项|重要合同"), TARGET_COMPLIANCE),
 ]
 
-# 每个目标最多保留的 token 数（粗估）
-MAX_CHARS_PER_TARGET = 12_000
+# 每个目标最多保留的字符数（financials 章节更长，在 _trim_chunks 里按目标差异化）
+MAX_CHARS_PER_TARGET = 20_000
 
 
 @dataclass
@@ -114,10 +120,11 @@ def _match_targets(chapter: str) -> list[str]:
 def _blocks_to_text(blocks: list[Block]) -> str:
     parts = []
     for b in blocks:
+        prefix = f"[p{b.page_no}] "
         if b.block_type == "table":
-            parts.append(f"[表格]\n{b.text}\n[/表格]")
+            parts.append(f"{prefix}[表格]\n{b.text}\n[/表格]")
         else:
-            parts.append(b.text)
+            parts.append(f"{prefix}{b.text}")
     return "\n\n".join(parts)
 
 

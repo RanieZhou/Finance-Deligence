@@ -66,7 +66,8 @@ def run_pipeline(
     if not section_map["issuer_profile"]:
         from pipeline.router.section_router import SectionChunk
         full_text = "\n\n".join(
-            b.text for b in clean_blocks if b.block_type in ("text", "table")
+            f"[p{b.page_no}] {b.text}"
+            for b in clean_blocks if b.block_type in ("text", "table")
         )[:12000]
         if full_text:
             section_map["issuer_profile"] = [
@@ -76,16 +77,27 @@ def run_pipeline(
 
     # ── Layer 4: LLM 抽取 ─────────────────────────────────
     logger.info(f"[{doc_id}] Layer 4: LLM extraction")
+
+    # 4a. 规则抽取：财务报表表格直接解析（快速、无幻觉）
+    from pipeline.structure.financial_table_parser import extract_table_financials, merge_financials
+    table_financials = extract_table_financials(clean_blocks, structure)
+    logger.info(f"[{doc_id}] Table parser: {len(table_financials)} financial records")
+
+    # 4b. LLM 抽取
     doc = DocumentResult(
         document_id=doc_id,
         document_type=_detect_doc_type(pdf_path.name),
     )
-    doc.issuer_profile      = extract_issuer(section_map["issuer_profile"])
-    doc.ownership_structure = extract_ownership(section_map["ownership_structure"])
-    doc.financials          = extract_financials(section_map["financials"])
+    doc.issuer_profile        = extract_issuer(section_map["issuer_profile"])
+    doc.ownership_structure   = extract_ownership(section_map["ownership_structure"])
+    llm_financials            = extract_financials(section_map["financials"])
     doc.fund_raising_projects = extract_fund_raising(section_map["fund_raising_projects"])
-    doc.risk_items          = extract_risks(section_map["risk_items"])
-    doc.compliance_items    = extract_compliance(section_map["compliance_items"])
+    doc.risk_items            = extract_risks(section_map["risk_items"])
+    doc.compliance_items      = extract_compliance(section_map["compliance_items"])
+
+    # 4c. 合并财务指标：规则结果优先，LLM 补充
+    doc.financials = merge_financials(table_financials, llm_financials)
+    logger.info(f"[{doc_id}] Financials merged: {len(doc.financials)} records total")
 
     # ── Layer 5: 后处理 ───────────────────────────────────
     logger.info(f"[{doc_id}] Layer 5: Post-processing")
